@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Course Generator - Plateforme pédagogique</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #3b82f6;
+            --accent-dark: #2563eb;
+            --accent-light: #eff6ff;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --accent-light: #1e293b;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo p {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-number {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .card-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            ring: 2px solid var(--accent-light);
+        }
+
+        /* File Upload */
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .file-list {
+            margin-top: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        /* Template Grid */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .template-card {
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .template-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .template-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .template-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .template-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Summary Section */
+        .summary-content {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+
+        .summary-content[contenteditable="true"] {
+            cursor: text;
+            outline: none;
+        }
+
+        .summary-content[contenteditable="true"]:focus {
+            border: 1px solid var(--accent);
+        }
+
+        /* Generation Section */
+        .generation-part {
+            border-left: 3px solid var(--accent);
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+
+        .part-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .part-content {
+            background: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* PDF Preview */
+        .pdf-preview {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 40px;
+            min-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* Editor Toolbar */
+        .editor-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tool-btn {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .tool-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Utility */
+        .hidden {
+            display: none;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .progress-steps {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            
+            .step-number {
+                margin-bottom: 0;
+            }
+            
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <h1>🎓 AI Course Generator</h1>
+                <p>Générez des cours pédagogiques avec l'intelligence artificielle</p>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span>🌙</span>
+                <span>Thème</span>
+            </button>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Ressources</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Template & Infos</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Résumé</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-number">4</div>
+                <div class="step-label">Génération</div>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-number">5</div>
+                <div class="step-label">Édition PDF</div>
+            </div>
+        </div>
+
+        <!-- Step 1: Upload Resources -->
+        <div id="step1" class="step-content">
+            <div class="card">
+                <h2 class="card-title">📁 Ressources pédagogiques</h2>
+                <p class="card-subtitle">Importez vos documents pour enrichir la génération du cours</p>
+                
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 48px; margin-bottom: 12px;">📤</div>
+                    <div>Cliquez ou glissez vos fichiers ici</div>
+                    <div style="font-size: 12px; margin-top: 8px;">PDF, DOCX, PPT, TXT, Images</div>
+                </div>
+                <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFiles(this.files)">
+                
+                <div id="fileList" class="file-list"></div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="nextStep(2)">Continuer →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Template & Course Info -->
+        <div id="step2" class="step-content hidden">
+            <div class="card">
+                <h2 class="card-title">📚 Structure du cours</h2>
+                <p class="card-subtitle">Choisissez un template et définissez les paramètres pédagogiques</p>
+                
+                <div class="template-grid" id="templateGrid"></div>
+                
+                <div class="form-group">
+                    <label>Titre du cours *</label>
+                    <input type="text" id="courseTitle" placeholder="Ex: Introduction à l'intelligence artificielle">
+                </div>
+                
+                <div class="form-group">
+                    <label>Description / Objectifs</label>
+                    <textarea id="courseDesc" rows="3" placeholder="Décrivez ce que les étudiants vont apprendre..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Niveau *</label>
+                    <select id="courseLevel">
+                        <option value="debutant">Débutant - Aucune connaissance requise</option>
+                        <option value="intermediaire">Intermédiaire - Connaissances de base requises</option>
+                        <option value="avance">Avancé - Maîtrise du sujet requise</option>
+                        <option value="expert">Expert - Niveau professionnel</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Durée totale (heures) *</label>
+                    <input type="number" id="courseDuration" value="10" min="1" max="100">
+                </div>
+                
+                <div class="form-group">
+                    <label>Public cible</label>
+                    <input type="text" id="targetAudience" placeholder="Ex: Étudiants en informatique, Professionnels du marketing...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Prérequis</label>
+                    <input type="text" id="prerequisites" placeholder="Ex: Connaissances de base en programmation">
+                </div>
+                
+                <div class="form-group">
+                    <label>Style pédagogique</label>
+                    <select id="pedagogicalStyle">
+                        <option value="equilibre">Équilibré - Théorie et pratique</option>
+                        <option value="theorique">Théorique - Accent sur les concepts</option>
+                        <option value="pratique">Pratique - Accent sur les exercices</option>
+                        <option value="interactif">Interactif - Discussions et collaborations</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Tonalité</label>
+                    <select id="tone">
+                        <option value="formel">Formel - Académique et structuré</option>
+                        <option value="semi">Semi-formel - Professionnel mais accessible</option>
+                        <option value="decontracte">Décontracté - Convivial et engageant</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Mots-clés obligatoires (séparés par des virgules)</label>
+                    <input type="text" id="keywords" placeholder="Ex: IA, machine learning, réseaux neuronaux">
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep(1)">← Retour</button>
+                    <button class="btn btn-primary" onclick="generateSummary()">Générer le résumé →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Summary -->
+        <div id="step3" class="step-content hidden">
+            <div class="card">
+                <h2 class="card-title">📝 Résumé du cours</h2>
+                <p class="card-subtitle">Vérifiez et modifiez le résumé généré par l'IA</p>
+                
+                <div id="summaryContainer">
+                    <div id="summaryContent" class="summary-content" contenteditable="true">
+                        <em>Génération du résumé en cours...</em>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep(2)">← Retour</button>
+                    <button class="btn btn-secondary" onclick="regenerateSummary()">⟳ Regénérer</button>
+                    <button class="btn btn-primary" onclick="validateSummary()">Valider et continuer →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Generation Part by Part -->
+        <div id="step4" class="step-content hidden">
+            <div class="card">
+                <h2 class="card-title">⚡ Génération du contenu</h2>
+                <p class="card-subtitle">Génération partie par partie - Modifiez et validez chaque section</p>
+                
+                <div id="generationContainer"></div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep(3)">← Retour</button>
+                    <button id="finalizeBtn" class="btn btn-primary hidden" onclick="finalizeCourse()">Finaliser le cours →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: PDF Editor -->
+        <div id="step5" class="step-content hidden">
+            <div class="card">
+                <h2 class="card-title">📄 Éditeur de cours</h2>
+                <p class="card-subtitle">Modifiez votre cours comme dans un éditeur Word</p>
+                
+                <div class="editor-toolbar">
+                    <button class="tool-btn" onclick="formatText('bold')"><b>Gras</b></button>
+                    <button class="tool-btn" onclick="formatText('italic')"><i>Italique</i></button>
+                    <button class="tool-btn" onclick="formatText('underline')"><u>Souligné</u></button>
+                    <button class="tool-btn" onclick="insertList()">Liste</button>
+                    <button class="tool-btn" onclick="insertTitle()">Titre</button>
+                    <button class="tool-btn" onclick="exportPDF()">📥 Exporter PDF</button>
+                </div>
+                
+                <div id="pdfPreview" class="pdf-preview" contenteditable="true">
+                    <p style="color: var(--text-muted); text-align: center;">Le cours sera affiché ici après génération...</p>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="prevStep(4)">← Retour</button>
+                    <button class="btn btn-primary" onclick="saveCourse()">💾 Sauvegarder</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentStep = 1;
+        let selectedTemplate = null;
+        let uploadedFiles = [];
+        let generatedSummary = "";
+        let courseParts = [];
+        let currentPartIndex = 0;
+        let generatedContent = {};
+
+        // Templates data
+        const templates = [
+            { id: "weekly", name: "📅 Hebdomadaire", desc: "Structure semaine par semaine", icon: "📅", structure: ["Introduction", "Semaine 1-8", "Évaluation", "Conclusion"] },
+            { id: "unit", name: "📚 Par unités", desc: "Modules thématiques indépendants", icon: "📚", structure: ["Introduction", "Unités 4-12", "Ressources", "Conclusion"] },
+            { id: "hands-on", name: "🛠️ Pratique", desc: "Apprentissage par la pratique", icon: "🛠️", structure: ["Introduction", "Modules pratiques", "Projet", "Ressources"] },
+            { id: "case-study", name: "📊 Cas pratique", desc: "Analyse de cas concrets", icon: "📊", structure: ["Introduction", "Cas d'étude", "Synthèse", "Évaluation"] },
+            { id: "discovery", name: "🔍 Découverte", desc: "Exploration de sujets émergents", icon: "🔍", structure: ["Déclencheur", "Exploration", "Partage", "Conclusion"] },
+            { id: "micro", name: "⚡ Micro-learning", desc: "Séquences courtes et ciblées", icon: "⚡", structure: ["Micro-modules 5-15min", "Badges", "Révisions"] }
+        ];
+
+        // Initialize
+        function init() {
+            renderTemplates();
+            updateStepDisplay();
+        }
+
+        function renderTemplates() {
+            const grid = document.getElementById('templateGrid');
+            grid.innerHTML = templates.map(t => `
+                <div class="template-card" onclick="selectTemplate('${t.id}')" data-template="${t.id}">
+                    <div class="template-icon">${t.icon}</div>
+                    <div class="template-name">${t.name}</div>
+                    <div class="template-desc">${t.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectTemplate(templateId) {
+            selectedTemplate = templateId;
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+                if(card.dataset.template === templateId) {
+                    card.classList.add('selected');
+                }
+            });
+        }
+
+        function handleFiles(files) {
+            uploadedFiles = [...uploadedFiles, ...Array.from(files)];
+            renderFileList();
+        }
+
+        function renderFileList() {
+            const container = document.getElementById('fileList');
+            container.innerHTML = uploadedFiles.map((file, idx) => `
+                <div class="file-item">
+                    <span>📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <button class="btn-secondary" style="padding: 4px 8px;" onclick="removeFile(${idx})">✖</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            renderFileList();
+        }
+
+        function generateSummary() {
+            if(!selectedTemplate) {
+                alert("Veuillez sélectionner un template");
+                return;
+            }
+            
+            const title = document.getElementById('courseTitle').value;
+            if(!title) {
+                alert("Veuillez saisir un titre de cours");
+                return;
+            }
+            
+            // Simuler la génération IA du résumé
+            const level = document.getElementById('courseLevel').options[document.getElementById('courseLevel').selectedIndex].text;
+            const duration = document.getElementById('courseDuration').value;
+            const style = document.getElementById('pedagogicalStyle').options[document.getElementById('pedagogicalStyle').selectedIndex].text;
+            const tone = document.getElementById('tone').options[document.getElementById('tone').selectedIndex].text;
+            
+            const summary = `# 📖 ${title}
+
+## Vue d'ensemble
+Ce cours de niveau **${level}** d'une durée de **${duration} heures** vise à former les participants aux concepts fondamentaux.
+
+**Public cible:** ${document.getElementById('targetAudience').value || "À définir"}
+
+**Prérequis:** ${document.getElementById('prerequisites').value || "Aucun"}
+
+## Objectifs pédagogiques
+À l'issue de cette formation, les participants seront capables de :
+1. Comprendre les concepts fondamentaux du domaine
+2. Appliquer les méthodologies apprises
+3. Analyser des cas concrets
+4. Créer des solutions adaptées
+
+## Structure proposée
+**Template choisi:** ${templates.find(t => t.id === selectedTemplate).name}
+**Style pédagogique:** ${style}
+**Tonalité:** ${tone}
+
+## Contenu prévisionnel
+- Introduction et contexte
+- Modules théoriques
+- Exercices pratiques
+- Évaluations formatives
+- Projet final
+
+## Ressources nécessaires
+- Supports de cours
+- Exercices pratiques
+- Bibliographie recommandée
+
+*Ce résumé a été généré automatiquement. Vous pouvez le modifier directement dans l'éditeur ci-dessus.*`;
+
+            generatedSummary = summary;
+            document.getElementById('summaryContent').innerHTML = summary.replace(/\n/g, '<br>');
+            nextStep(3);
+        }
+
+        function regenerateSummary() {
+            generateSummary();
+        }
+
+        function validateSummary() {
+            generatedSummary = document.getElementById('summaryContent').innerHTML.replace(/<br>/g, '\n');
+            initializeCourseParts();
+            nextStep(4);
+        }
+
+        function initializeCourseParts() {
+            const template = templates.find(t => t.id === selectedTemplate);
+            const duration = parseInt(document.getElementById('courseDuration').value);
+            const partsCount = template.structure.length;
+            
+            courseParts = template.structure.map((part, idx) => ({
+                id: idx,
+                title: part,
+                duration: Math.round(duration / partsCount),
+                content: ""
+            }));
+            
+            currentPartIndex = 0;
+            renderGenerationStep();
+        }
+
+        function renderGenerationStep() {
+            const container = document.getElementById('generationContainer');
+            const currentPart = courseParts[currentPartIndex];
+            
+            container.innerHTML = `
+                <div class="generation-part">
+                    <div class="part-header">
+                        <h3>Partie ${currentPartIndex + 1}/${courseParts.length} : ${currentPart.title}</h3>
+                        <span class="badge">⏱️ ${currentPart.duration}h estimées</span>
+                    </div>
+                    <div id="partContent${currentPart.id}" class="part-content" contenteditable="true">
+                        ${currentPart.content || "<em>Cliquez sur 'Générer' pour créer le contenu de cette section...</em>"}
+                    </div>
+                    <div class="btn-group">
+                        ${currentPartIndex > 0 ? '<button class="btn btn-secondary" onclick="previousPart()">← Partie précédente</button>' : ''}
+                        <button class="btn btn-primary" onclick="generateCurrentPart()">✨ Générer cette partie</button>
+                        ${currentPartIndex < courseParts.length - 1 ? 
+                            '<button class="btn btn-primary" onclick="validateAndNext()">Valider et suivante →</button>' : 
+                            '<button class="btn btn-primary" onclick="validateAndNext()">✅ Valider et finaliser</button>'}
+                    </div>
+                </div>
+            `;
+            
+            // Afficher le bouton de finalisation si c'est la dernière partie
+            const finalizeBtn = document.getElementById('finalizeBtn');
+            if(currentPartIndex === courseParts.length - 1) {
+                finalizeBtn.classList.remove('hidden');
+            } else {
+                finalizeBtn.classList.add('hidden');
+            }
+        }
+        
+        function generateCurrentPart() {
+            const currentPart = courseParts[currentPartIndex];
+            const title = document.getElementById('courseTitle').value;
+            const level = document.getElementById('courseLevel').value;
+            
+            // Simulation de génération IA
+            const demoContent = `
+<h3>${currentPart.title}</h3>
+<p><strong>Objectifs de cette section:</strong> Comprendre et maîtriser les concepts liés à ${currentPart.title.toLowerCase()}.</p>
+
+<h4>1. Introduction</h4>
+<p>Cette section aborde les fondamentaux de ${currentPart.title.toLowerCase()} dans le cadre du cours "${title}". Le niveau requis est ${level}.</p>
+
+<h4>2. Contenu principal</h4>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+
+<h4>3. Exemples concrets</h4>
+<ul>
+  <li>Exemple 1: Application pratique dans un contexte réel</li>
+  <li>Exemple 2: Cas d'usage typique</li>
+  <li>Exemple 3: Bonnes pratiques à adopter</li>
+</ul>
+
+<h4>4. Exercice d'application</h4>
+<p>Prenez 15 minutes pour réfléchir à comment appliquer ces concepts dans votre contexte professionnel.</p>
+
+<h4>5. Points clés à retenir</h4>
+<ul>
+  <li>Concept fondamental 1</li>
+  <li>Concept fondamental 2</li>
+  <li>Mise en pratique recommandée</li>
+</ul>
+            `;
+            
+            currentPart.content = demoContent;
+            const contentDiv = document.getElementById(`partContent${currentPart.id}`);
+            if(contentDiv) {
+                contentDiv.innerHTML = demoContent;
+            }
+        }
+        
+        function validateAndNext() {
+            // Sauvegarder le contenu modifié
+            const currentPart = courseParts[currentPartIndex];
+            const contentDiv = document.getElementById(`partContent${currentPart.id}`);
+            if(contentDiv) {
+                currentPart.content = contentDiv.innerHTML;
+            }
+            
+            if(currentPartIndex < courseParts.length - 1) {
+                currentPartIndex++;
+                renderGenerationStep();
+            } else {
+                finalizeCourse();
+            }
+        }
+        
+        function previousPart() {
+            if(currentPartIndex > 0) {
+                currentPartIndex--;
+                renderGenerationStep();
+            }
+        }
+        
+        function finalizeCourse() {
+            // Assembler tout le contenu
+            let fullCourse = `<h1>${document.getElementById('courseTitle').value}</h1>`;
+            fullCourse += `<p><strong>Niveau:</strong> ${document.getElementById('courseLevel').options[document.getElementById('courseLevel').selectedIndex].text}</p>`;
+            fullCourse += `<p><strong>Durée:</strong> ${document.getElementById('courseDuration').value} heures</p>`;
+            fullCourse += `<hr>`;
+            
+            courseParts.forEach(part => {
+                fullCourse += `<div style="margin-bottom: 40px;">${part.content}</div>`;
+                fullCourse += `<hr>`;
+            });
+            
+            document.getElementById('pdfPreview').innerHTML = fullCourse;
+            nextStep(5);
+        }
+        
+        function formatText(command) {
+            document.execCommand(command, false, null);
+        }
+        
+        function insertList() {
+            document.execCommand('insertUnorderedList', false, null);
+        }
+        
+        function insertTitle() {
+            document.execCommand('formatBlock', false, 'h3');
+        }
+        
+        function exportPDF() {
+            alert("Fonctionnalité d'export PDF (à connecter avec une librairie comme jsPDF ou window.print)");
+            // Ici on pourrait implémenter window.print() ou utiliser une librairie
+            window.print();
+        }
+        
+        function saveCourse() {
+            const course = {
+                title: document.getElementById('courseTitle').value,
+                content: document.getElementById('pdfPreview').innerHTML,
+                date: new Date().toISOString()
+            };
+            localStorage.setItem('savedCourse', JSON.stringify(course));
+            alert("Cours sauvegardé !");
+        }
+        
+        // Navigation
+        function nextStep(step) {
+            currentStep = step;
+            updateStepDisplay();
+        }
+        
+        function prevStep(step) {
+            currentStep = step;
+            updateStepDisplay();
+        }
+        
+        function updateStepDisplay() {
+            for(let i = 1; i <= 5; i++) {
+                const stepContent = document.getElementById(`step${i}`);
+                if(stepContent) {
+                    stepContent.classList.add('hidden');
+                }
+                const stepIndicator = document.querySelector(`.step[data-step="${i}"]`);
+                if(stepIndicator) {
+                    stepIndicator.classList.remove('active', 'completed');
+                    if(i === currentStep) {
+                        stepIndicator.classList.add('active');
+                    } else if(i < currentStep) {
+                        stepIndicator.classList.add('completed');
+                    }
+                }
+            }
+            
+            const currentContent = document.getElementById(`step${currentStep}`);
+            if(currentContent) {
+                currentContent.classList.remove('hidden');
+            }
+        }
+        
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            if(currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+            }
+        }
+        
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

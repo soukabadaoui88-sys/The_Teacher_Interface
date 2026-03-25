@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NGE-AI — Générateur de Cours</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="course_generator_style.css"></head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo"> NGE-AI</div>
+  <div class="nav-right">
+    <button class="theme-btn" id="themeToggle" title="Changer le thème">🌙</button>
+  </div>
+</nav>
+<!-- STEPPER -->
+<div class="stepper-wrap" id="stepper">
+  <div class="step-item active" onclick="goStep(0)" data-step="0">
+    <div class="step-num">1</div>
+    <div class="step-label">Ressources</div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" onclick="goStep(1)" data-step="1">
+    <div class="step-num">2</div>
+    <div class="step-label">Paramètres</div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" onclick="goStep(2)" data-step="2">
+    <div class="step-num">3</div>
+    <div class="step-label">Sommaire IA</div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" onclick="goStep(3)" data-step="3">
+    <div class="step-num">4</div>
+    <div class="step-label">Génération</div>
+  </div>
+  <div class="step-connector"></div>
+  <div class="step-item" onclick="goStep(4)" data-step="4">
+    <div class="step-num">5</div>
+    <div class="step-label">Finalisation</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- ══ STEP 0 — RESSOURCES ══ -->
+  <div class="panel active" id="panel-0">
+    <div class="container">
+      <div class="section-head">
+        <div class="badge"> Étape 1 / 5</div>
+        <h2>Ressources du cours</h2>
+        <p>Téléversez vos documents, slides, bibliographies ou tout fichier utile.<br>L'IA les utilisera comme base de connaissance pour générer votre cours.</p>
+      </div>
+
+      <div class="card">
+        <div class="upload-zone" id="dropZone">
+          <input type="file" id="fileInput" multiple accept=".pdf,.pptx,.docx,.txt,.md,.csv,.xlsx,.png,.jpg"/>
+          <span class="icon">📁</span>
+          <h3>Glissez vos fichiers ici</h3>
+          <p>PDF, Word, PowerPoint, Excel, images, texte…<br>ou <u style="cursor:pointer;color:var(--accent)" onclick="document.getElementById('fileInput').click()">parcourez vos fichiers</u></p>
+        </div>
+        <div class="file-list" id="fileList"></div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px;font-weight:600;">Choisissez un modèle de présentation :</p>
+        <div class="template-grid">
+          <div class="tmpl-card selected" onclick="selectTemplate(this,'academique')">
+            <span class="tmpl-icon">🎓</span>
+            <div class="tmpl-name">Académique</div>
+            <div class="tmpl-desc">Structure universitaire avec objectifs, théorie, exercices</div>
+          </div>
+          <div class="tmpl-card" onclick="selectTemplate(this,'professionnel')">
+            <span class="tmpl-icon">💼</span>
+            <div class="tmpl-name">Professionnel</div>
+            <div class="tmpl-desc">Orienté compétences métier et cas pratiques</div>
+          </div>
+          <div class="tmpl-card" onclick="selectTemplate(this,'interactif')">
+            <span class="tmpl-icon">⚡</span>
+            <div class="tmpl-name">Interactif</div>
+            <div class="tmpl-desc">Quiz intégrés, activités, apprentissage par la pratique</div>
+          </div>
+          <div class="tmpl-card" onclick="selectTemplate(this,'tutoriel')">
+            <span class="tmpl-icon">🧩</span>
+            <div class="tmpl-name">Tutoriel</div>
+            <div class="tmpl-desc">Pas-à-pas guidé, idéal pour les formations techniques</div>
+          </div>
+          <div class="tmpl-card" onclick="selectTemplate(this,'memo')">
+            <span class="tmpl-icon">📋</span>
+            <div class="tmpl-name">Mémo</div>
+            <div class="tmpl-desc">Condensé dense, fiches récapitulatives et synthèses</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row right">
+        <button class="btn btn-primary" onclick="goStep(1)">Continuer →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 1 — PARAMÈTRES ══ -->
+  <div class="panel" id="panel-1">
+    <div class="container">
+      <div class="section-head">
+        <div class="badge"> Étape 2 / 5</div>
+        <h2>Paramètres du cours</h2>
+        <p>Ces informations guident l'IA pour générer un cours adapté à votre contexte.</p>
+      </div>
+
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:16px;">Informations générales</p>
+        <div class="form-grid">
+          <div class="field form-full">
+            <label>Titre du cours <span class="required">*</span></label>
+            <input type="text" id="courseTitle" placeholder="Ex : Introduction à l'intelligence artificielle" />
+          </div>
+          <div class="field form-full">
+            <label>Description / Sujet principal <span class="required">*</span></label>
+            <textarea id="courseDesc" placeholder="Décrivez brièvement le contenu, les thèmes principaux et l'objectif pédagogique du cours…"></textarea>
+          </div>
+          <div class="field">
+            <label>Matière / Domaine</label>
+            <input type="text" id="courseSubject" placeholder="Ex : Informatique, Biologie, Droit…"/>
+          </div>
+          <div class="field">
+            <label>Institution / Formation</label>
+            <input type="text" id="courseInstitution" placeholder="Ex : Université, Centre de formation…"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:16px;">Public cible & niveau</p>
+        <div class="field" style="margin-bottom:18px">
+          <label>Classe cible</label>
+          <div class="chip-group" id="audienceGroup">
+            <div class="chip selected" onclick="selectChip(this,'audienceGroup')">CP 1</div>
+            <div class="chip" onclick="selectChip(this,'audienceGroup')">CP 2</div>
+            <div class="chip" onclick="selectChip(this,'audienceGroup')">TDIA 1</div>
+            <div class="chip" onclick="selectChip(this,'audienceGroup')">TDIA 2</div>
+            <div class="chip" onclick="selectChip(this,'audienceGroup')">TDIA 3</div>
+          </div>
+
+
+        <div class="field" style="margin-bottom:18px">
+
+          <label>Niveau de l'apprenant <span class="required">*</span></label>
+          <div class="chip-group" id="levelGroup">
+            <div class="chip" onclick="selectChip(this,'levelGroup')">🟢 Débutant</div>
+            <div class="chip selected" onclick="selectChip(this,'levelGroup')">🟡 Intermédiaire</div>
+            <div class="chip" onclick="selectChip(this,'levelGroup')">🔴 Avancé</div>
+            <div class="chip" onclick="selectChip(this,'levelGroup')">🔵 Expert</div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:18px">
+          <label>Prérequis</label>
+          <textarea id="prereqs" placeholder="Connaissances ou compétences nécessaires avant de commencer ce cours…" style="min-height:70px"></textarea>
+        </div>
+        </div>
+
+        <div class="field">
+          <label>Langue d'enseignement</label>
+          <select>
+            <option>🇫🇷 Français</option>
+            <option>🇬🇧 Anglais</option>
+            <option>🇲🇦 Arabe</option>
+            <option>🇪🇸 Espagnol</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:16px;">Durée & structure</p>
+        <div class="form-grid cols3">
+          <div class="field">
+            <label>Durée totale (heures)</label>
+            <div class="slider-wrap">
+              <input type="range" min="1" max="120" value="30" id="durationSlider" oninput="document.getElementById('durationVal').textContent=this.value+'h'"/>
+              <div class="slider-val" id="durationVal">30h</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Nombre de modules</label>
+            <div class="slider-wrap">
+              <input type="range" min="1" max="20" value="6" id="modulesSlider" oninput="document.getElementById('modulesVal').textContent=this.value"/>
+              <div class="slider-val" id="modulesVal">6</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Séances par module</label>
+            <div class="slider-wrap">
+              <input type="range" min="1" max="10" value="3" id="sessionsSlider" oninput="document.getElementById('sessionsVal').textContent=this.value"/>
+              <div class="slider-val" id="sessionsVal">3</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:16px;">Contrôle pédagogique avancé</p>
+        <div class="form-grid">
+          <div class="field">
+            <label>Ton / Style d'écriture</label>
+            <div class="chip-group" id="toneGroup">
+              <div class="chip selected" onclick="selectChip(this,'toneGroup')">📖 Formel</div>
+              <div class="chip" onclick="selectChip(this,'toneGroup')">💬 Conversationnel</div>
+              <div class="chip" onclick="selectChip(this,'toneGroup')">🎯 Directif</div>
+              <div class="chip" onclick="selectChip(this,'toneGroup')">🌟 Engageant</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Densité du contenu</label>
+            <div class="chip-group" id="densityGroup">
+              <div class="chip" onclick="selectChip(this,'densityGroup')">🪶 Léger</div>
+              <div class="chip selected" onclick="selectChip(this,'densityGroup')">⚖️ Équilibré</div>
+              <div class="chip" onclick="selectChip(this,'densityGroup')">🏋️ Dense</div>
+            </div>
+          </div>
+          <div class="field form-full">
+            <label>Types d'activités à inclure</label>
+            <div class="chip-group" id="activityGroup" style="gap:8px">
+              <div class="chip selected" onclick="toggleChip(this)">✅ Quiz</div>
+              <div class="chip selected" onclick="toggleChip(this)">📝 Exercices pratiques</div>
+              <div class="chip" onclick="toggleChip(this)">💡 Études de cas</div>
+              <div class="chip selected" onclick="toggleChip(this)">🔍 Résumés</div>
+              <div class="chip" onclick="toggleChip(this)">📊 Travaux dirigés</div>
+              <div class="chip" onclick="toggleChip(this)">🎯 Objectifs de séance</div>
+              <div class="chip" onclick="toggleChip(this)">📚 Références bibliographiques</div>
+              <div class="chip" onclick="toggleChip(this)">🗺️ Cartes mentales</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Ratio théorie / pratique</label>
+            <div class="slider-wrap">
+              <span style="font-size:12px;color:var(--text3)">Th.</span>
+              <input type="range" min="0" max="100" value="60" id="ratioSlider"
+                oninput="document.getElementById('ratioVal').textContent=this.value+'% / '+(100-this.value)+'%'"/>
+              <span style="font-size:12px;color:var(--text3)">Pr.</span>
+              <div class="slider-val" id="ratioVal" style="min-width:80px">60% / 40%</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Niveau de détail des explications</label>
+            <div class="chip-group" id="detailGroup">
+              <div class="chip" onclick="selectChip(this,'detailGroup')">⚡ Concis</div>
+              <div class="chip selected" onclick="selectChip(this,'detailGroup')">📄 Standard</div>
+              <div class="chip" onclick="selectChip(this,'detailGroup')">📚 Exhaustif</div>
+            </div>
+          </div>
+          <div class="field form-full">
+            <label>Objectifs pédagogiques généraux</label>
+            <textarea id="objectives" placeholder="À la fin de ce cours, l'apprenant sera capable de…" style="min-height:80px"></textarea>
+          </div>
+          <div class="field">
+            <label>Mots-clés / Concepts prioritaires</label>
+            <input type="text" placeholder="Séparez par des virgules : réseau, neurone, gradient…"/>
+          </div>
+          <div class="field">
+            <label>Évaluation finale</label>
+            <select>
+              <option>Aucune</option>
+              <option>QCM final</option>
+              <option>Projet pratique</option>
+              <option>Examen écrit</option>
+              <option>Présentation orale</option>
+              <option>Rapport de stage</option>
+            </select>
+          </div>
+        </div>
+        <div class="info-box" style="margin-top:16px">
+          <span class="info-icon">💡</span>
+          <span>Plus vous renseignez ces paramètres, plus le modèle IA générera un contenu précis et adapté à vos besoins pédagogiques.</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep(0)">← Retour</button>
+        <button class="btn btn-primary" onclick="goStep(2)">Générer le sommaire →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2 — SOMMAIRE IA ══ -->
+  <div class="panel" id="panel-2">
+    <div class="container" style="max-width:1040px">
+      <div class="section-head">
+        <div class="badge"> Étape 3 / 5</div>
+        <h2>Sommaire proposé par l'IA</h2>
+        <p>L'IA a analysé vos paramètres et propose la structure suivante. Modifiez, ajoutez ou supprimez des parties avant de valider.</p>
+      </div>
+
+      <div class="ai-loading" id="summaryLoading" style="display:none">
+        <div class="spinner"></div>
+        <span>Génération du sommaire en cours…</span>
+      </div>
+
+      <div class="summary-container" id="summaryReady">
+        <div>
+          <div class="summary-editor">
+            <div class="editor-toolbar">
+              <button class="tb-btn" onclick="document.execCommand('bold')"><b>G</b></button>
+              <button class="tb-btn" onclick="document.execCommand('italic')"><i>I</i></button>
+              <button class="tb-btn" onclick="document.execCommand('insertUnorderedList')">• Liste</button>
+              <button class="tb-btn" onclick="document.execCommand('insertOrderedList')">1. Numéroté</button>
+              <button class="tb-btn" onclick="document.execCommand('formatBlock','h2')">H2</button>
+              <button class="tb-btn" onclick="document.execCommand('formatBlock','h3')">H3</button>
+              <button class="tb-btn" onclick="document.execCommand('undo')">↩ Annuler</button>
+            </div>
+            <div class="editor-area" contenteditable="true" id="summaryEditor">
+              <h2>📘 Introduction à l'Intelligence Artificielle</h2>
+              <p style="color:#8B93B5;font-size:13px">30h • 6 modules • Niveau intermédiaire</p>
+              <br>
+              <h3>Module 1 — Fondements de l'IA</h3>
+              <ul>
+                <li>Histoire et définitions de l'intelligence artificielle</li>
+                <li>Domaines d'application et enjeux contemporains</li>
+                <li>Panorama des approches : symbolique vs connexionniste</li>
+              </ul>
+              <h3>Module 2 — Apprentissage automatique (Machine Learning)</h3>
+              <ul>
+                <li>Apprentissage supervisé, non supervisé, par renforcement</li>
+                <li>Préparation et nettoyage des données</li>
+                <li>Évaluation de modèles : métriques et validation croisée</li>
+              </ul>
+              <h3>Module 3 — Réseaux de neurones artificiels</h3>
+              <ul>
+                <li>Le perceptron et les architectures multicouches</li>
+                <li>Fonctions d'activation, rétropropagation</li>
+                <li>Exercice pratique : classification d'images</li>
+              </ul>
+              <h3>Module 4 — Deep Learning</h3>
+              <ul>
+                <li>CNN, RNN, Transformers</li>
+                <li>Traitement du langage naturel (NLP)</li>
+                <li>Vision par ordinateur</li>
+              </ul>
+              <h3>Module 5 — IA Générative</h3>
+              <ul>
+                <li>Modèles de diffusion et GANs</li>
+                <li>Grands modèles de langage (LLM)</li>
+                <li>Cas d'usage et limites éthiques</li>
+              </ul>
+              <h3>Module 6 — Projet intégrateur & Évaluation</h3>
+              <ul>
+                <li>Conception d'un pipeline IA complet</li>
+                <li>Présentation et défense du projet</li>
+                <li>Révisions et QCM final</li>
+              </ul>
+            </div>
+          </div>
+          <div class="btn-row" style="margin-top:16px">
+            <button class="btn btn-secondary btn-sm" onclick="regenerateSummary()">🔄 Regénérer</button>
+            <button class="btn btn-secondary btn-sm">➕ Ajouter un module</button>
+            <button class="btn btn-success" onclick="goStep(3)" style="margin-left:auto">✓ Valider le sommaire →</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="ai-suggestion">
+            <h4><span class="ai-dot"></span> Suggestions IA</h4>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Cliquez pour ajouter des sous-sections :</p>
+            <div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ Éthique de l'IA</div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ Biais algorithmiques</div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ Introduction à Python</div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ IA et emploi</div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ AutoML</div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ Edge AI</div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ IA explicable (XAI)</div>
+              <div class="ai-chip" onclick="addChipToEditor(this)">+ Sécurité des modèles</div>
+            </div>
+            <div class="divider"></div>
+            <h4 style="font-size:12px;color:var(--text3);margin-bottom:8px">Statistiques estimées</h4>
+            <div style="font-size:13px;color:var(--text2)">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span>Modules</span><strong>6</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span>Séances</span><strong>18</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+                <span>Heures estimées</span><strong>30h</strong>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                <span>Quiz prévus</span><strong>6</strong>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar" style="width:72%"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text3);margin-top:4px">72% de couverture des objectifs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3 — GÉNÉRATION ══ -->
+  <div class="panel" id="panel-3">
+    <div class="wide-container">
+      <div class="section-head">
+        <div class="badge"> Étape 4 / 5</div>
+        <h2>Génération partie par partie</h2>
+        <p>L'IA génère chaque module. Vous pouvez modifier le contenu après chaque génération avant de passer au suivant.</p>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-card"><div class="stat-num" id="statDone">0</div><div class="stat-lbl">Modules générés</div></div>
+        <div class="stat-card"><div class="stat-num">6</div><div class="stat-lbl">Total modules</div></div>
+        <div class="stat-card"><div class="stat-num" id="statWords">0</div><div class="stat-lbl">Mots générés</div></div>
+        <div class="stat-card"><div class="stat-num" id="statPct">0%</div><div class="stat-lbl">Progression</div></div>
+      </div>
+      <div class="progress-bar-wrap" style="margin-bottom:24px">
+        <div class="progress-bar" id="genProgress" style="width:0%"></div>
+      </div>
+
+      <div class="gen-layout">
+        <div class="parts-list" id="partsList">
+          <!-- injected by JS -->
+        </div>
+        <div class="gen-view">
+          <div class="gen-view-header">
+            <h3 id="genViewTitle">Sélectionnez un module</h3>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary btn-sm" id="genBtn" onclick="simulateGeneration()">⚡ Générer</button>
+              <button class="btn btn-sm" style="background:var(--bg4);color:var(--text2);" id="validateBtn" onclick="validateModule()" disabled>✓ Valider</button>
+            </div>
+          </div>
+          <div class="gen-view-body" id="genViewBody" contenteditable="false">
+            <div style="text-align:center;padding:60px 20px;color:var(--text3)">
+              <div style="font-size:48px;margin-bottom:16px">🤖</div>
+              <p>Cliquez sur un module puis sur <strong>Générer</strong> pour démarrer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep(2)">← Retour</button>
+        <button class="btn btn-primary" onclick="goStep(4)" id="finishGenBtn">Voir le PDF final →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 4 — FINALISATION ══ -->
+  <div class="panel" id="panel-4">
+    <div class="wide-container">
+      <div class="section-head">
+        <div class="badge"> Étape 5 / 5</div>
+        <h2>Finalisation du cours</h2>
+        <p>Prévisualisez le PDF, ajustez le style et exportez votre cours pédagogique.</p>
+      </div>
+
+      <div class="pdf-layout">
+        <!-- PDF PREVIEW -->
+        <div class="pdf-preview">
+          <div class="pdf-toolbar">
+            <button class="btn btn-secondary btn-sm">◀ Page 1/8</button>
+            <button class="btn btn-secondary btn-sm">▶</button>
+            <div style="flex:1"></div>
+            <button class="btn btn-secondary btn-sm">🔍 Zoom</button>
+            <button class="btn btn-success btn-sm" onclick="alert('Export PDF en cours…')">⬇ Exporter PDF</button>
+          </div>
+          <div class="pdf-preview-body">
+            <!-- Cover page -->
+            <div class="pdf-page">
+              <div class="pdf-accent-bar"></div>
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#8B93B5;margin-bottom:8px">Cours • Niveau Intermédiaire</div>
+              <h1>Introduction à l'Intelligence Artificielle</h1>
+              <div class="pdf-meta">Durée : 30h • 6 modules • Année 2024-2025</div>
+              <p>Ce cours propose une introduction structurée aux concepts fondamentaux de l'intelligence artificielle, du machine learning et du deep learning, à travers une approche alliant théorie et pratique.</p>
+              <div style="margin-top:24px;padding:16px;background:#f7f8ff;border-radius:8px;border-left:3px solid #5B8CFF">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#5B8CFF;font-weight:700;margin-bottom:8px">Objectifs pédagogiques</div>
+                <ul>
+                  <li>Comprendre les fondements de l'IA et du ML</li>
+                  <li>Maîtriser les algorithmes d'apprentissage essentiels</li>
+                  <li>Implémenter des modèles simples en Python</li>
+                  <li>Analyser les enjeux éthiques liés à l'IA</li>
+                </ul>
+              </div>
+              <div class="pdf-page-num">1</div>
+            </div>
+            <!-- Content page -->
+            <div class="pdf-page">
+              <div class="pdf-accent-bar"></div>
+              <h2>Module 1 — Fondements de l'IA</h2>
+              <p>L'intelligence artificielle désigne l'ensemble des techniques permettant à des machines de simuler certaines fonctions cognitives humaines. Née dans les années 1950, elle repose aujourd'hui sur trois grandes approches : les systèmes experts, l'apprentissage automatique et les réseaux de neurones profonds.</p>
+              <h2>1.1 Histoire de l'IA</h2>
+              <p>Des travaux pionniers de Turing (1950) aux transformers modernes, l'IA a traversé plusieurs cycles d'enthousiasme et de désillusion (hivers de l'IA). La démocratisation des GPU et la disponibilité massive de données ont déclenché la révolution actuelle.</p>
+              <div style="margin:16px 0;padding:14px;background:#f0f4ff;border-radius:8px">
+                <strong style="font-size:12px;color:#5B8CFF">💡 À retenir</strong>
+                <p style="margin-top:6px;font-size:12px">L'IA ne pense pas : elle optimise une fonction mathématique à partir de données d'entraînement.</p>
+              </div>
+              <h2>1.2 Domaines d'application</h2>
+              <ul>
+                <li>Vision par ordinateur (reconnaissance d'images, détection d'objets)</li>
+                <li>Traitement du langage naturel (traduction, chatbots, résumé)</li>
+                <li>Systèmes de recommandation (streaming, e-commerce)</li>
+                <li>Robotique et systèmes autonomes</li>
+              </ul>
+              <div class="pdf-page-num">2</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDIT PANEL -->
+        <div class="pdf-edit-panel">
+          <div class="panel-tabs">
+            <button class="ptab active" onclick="switchTab(this,'style')">🎨 Style</button>
+            <button class="ptab" onclick="switchTab(this,'annotations')">📝 Notes</button>
+            <button class="ptab" onclick="switchTab(this,'media')">🖼 Médias</button>
+          </div>
+          <div class="ptab-body" id="tabStyle">
+            <p style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:14px">Couleur principale</p>
+            <div class="color-swatches" style="margin-bottom:20px">
+              <div class="swatch selected" style="background:#5B8CFF" onclick="selectSwatch(this)"></div>
+              <div class="swatch" style="background:#A78BFA" onclick="selectSwatch(this)"></div>
+              <div class="swatch" style="background:#34D399" onclick="selectSwatch(this)"></div>
+              <div class="swatch" style="background:#F59E0B" onclick="selectSwatch(this)"></div>
+              <div class="swatch" style="background:#EF4444" onclick="selectSwatch(this)"></div>
+              <div class="swatch" style="background:#0EA5E9" onclick="selectSwatch(this)"></div>
+            </div>
+            <p style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Police</p>
+            <div class="chip-group" style="margin-bottom:20px" id="fontGroup">
+              <div class="chip selected" onclick="selectChip(this,'fontGroup')">Syne</div>
+              <div class="chip" onclick="selectChip(this,'fontGroup')">Georgia</div>
+              <div class="chip" onclick="selectChip(this,'fontGroup')">Courier</div>
+            </div>
+            <p style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Taille du texte</p>
+            <div class="slider-wrap" style="margin-bottom:20px">
+              <input type="range" min="10" max="18" value="13" oninput="this.nextElementSibling.textContent=this.value+'px'"/>
+              <div class="slider-val" style="font-size:14px">13px</div>
+            </div>
+            <p style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Mise en page</p>
+            <div class="chip-group" id="layoutGroup">
+              <div class="chip selected" onclick="selectChip(this,'layoutGroup')">1 colonne</div>
+              <div class="chip" onclick="selectChip(this,'layoutGroup')">2 colonnes</div>
+            </div>
+            <div class="divider"></div>
+            <p style="font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text3);margin-bottom:10px">Éléments</p>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <label style="display:flex;justify-content:space-between;align-items:center;font-size:13px;cursor:pointer">
+                En-tête avec logo <input type="checkbox" checked style="width:16px;height:16px;cursor:pointer"/>
+              </label>
+              <label style="display:flex;justify-content:space-between;align-items:center;font-size:13px;cursor:pointer">
+                Numéros de page <input type="checkbox" checked style="width:16px;height:16px;cursor:pointer"/>
+              </label>
+              <label style="display:flex;justify-content:space-between;align-items:center;font-size:13px;cursor:pointer">
+                Table des matières <input type="checkbox" checked style="width:16px;height:16px;cursor:pointer"/>
+              </label>
+              <label style="display:flex;justify-content:space-between;align-items:center;font-size:13px;cursor:pointer">
+                Objectifs par module <input type="checkbox" checked style="width:16px;height:16px;cursor:pointer"/>
+              </label>
+              <label style="display:flex;justify-content:space-between;align-items:center;font-size:13px;cursor:pointer">
+                Encadrés "À retenir" <input type="checkbox" checked style="width:16px;height:16px;cursor:pointer"/>
+              </label>
+            </div>
+          </div>
+          <div class="ptab-body" id="tabAnnotations" style="display:none">
+            <textarea style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;resize:vertical;min-height:200px;outline:none" placeholder="Ajoutez vos remarques, commentaires ou instructions supplémentaires pour l'IA…"></textarea>
+            <button class="btn btn-primary btn-sm" style="margin-top:12px;width:100%;justify-content:center">💾 Sauvegarder la note</button>
+          </div>
+          <div class="ptab-body" id="tabMedia" style="display:none">
+            <div class="upload-zone" style="padding:24px;margin-bottom:12px" onclick="alert('Sélectionner une image…')">
+              <span class="icon" style="font-size:28px">🖼</span>
+              <p style="font-size:13px">Ajouter une image ou un diagramme</p>
+            </div>
+            <p style="font-size:12px;color:var(--text3);text-align:center">Les images seront insérées à la position du curseur dans le document.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goStep(3)">← Retour</button>
+        <button class="btn btn-secondary" onclick="alert('Sauvegarde en brouillon…')">💾 Sauvegarder brouillon</button>
+        <button class="btn btn-success" onclick="showSuccess()" style="margin-left:auto">🎉 Publier le cours</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;display:none;place-items:center">
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:480px;width:90%;text-align:center">
+    <div style="font-size:64px;margin-bottom:20px">🎓</div>
+    <h2 style="font-family:'Times New Roman', Times, serif;font-weight:800;font-size:28px;margin-bottom:12px">Cours publié !</h2>
+    <p style="color:var(--text2);margin-bottom:28px;line-height:1.6">Votre cours a été généré et publié avec succès. Il est maintenant disponible pour vos apprenants.</p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button class="btn btn-secondary" onclick="document.getElementById('successModal').style.display='none'">Fermer</button>
+      <button class="btn btn-primary" onclick="alert('Ouverture du cours…')">Voir le cours</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ─── THEME ─── */
+  const html = document.documentElement;
+  const themeBtn = document.getElementById('themeToggle');
+  themeBtn.onclick = () => {
+    const isDark = html.dataset.theme === 'dark';
+    html.dataset.theme = isDark ? 'light' : 'dark';
+    themeBtn.textContent = isDark ? '🌙' : '☀️';
+  };
+
+  /* ─── STEPPER ─── */
+  let currentStep = 0;
+
+  function goStep(n) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + n).classList.add('active');
+    document.querySelectorAll('.step-item').forEach((el, i) => {
+      el.classList.remove('active','done');
+      if (i < n) el.classList.add('done');
+      else if (i === n) el.classList.add('active');
+    });
+    currentStep = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (n === 3) initPartsIfNeeded();
+  }
+
+  /* ─── FILE UPLOAD ─── */
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const fileList = document.getElementById('fileList');
+  const fileIcons = { pdf:'📄', pptx:'📊', docx:'📝', xlsx:'📈', txt:'📃', md:'📃', png:'🖼', jpg:'🖼', csv:'📊', default:'📁' };
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+  fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+  function handleFiles(files) {
+    [...files].forEach(f => {
+      const ext = f.name.split('.').pop().toLowerCase();
+      const icon = fileIcons[ext] || fileIcons.default;
+      const size = f.size < 1024*1024 ? (f.size/1024).toFixed(1)+' Ko' : (f.size/1024/1024).toFixed(1)+' Mo';
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML = `<div class="file-icon">${icon}</div>
+        <div class="file-info"><div class="file-name">${f.name}</div><div class="file-size">${size}</div></div>
+        <button class="file-remove" onclick="this.closest('.file-item').remove()">✕</button>`;
+      fileList.appendChild(item);
+    });
+  }
+
+  /* ─── TEMPLATE ─── */
+  function selectTemplate(el, name) {
+    document.querySelectorAll('.tmpl-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  /* ─── CHIPS ─── */
+  function selectChip(el, group) {
+    document.querySelectorAll(`#${group} .chip`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function toggleChip(el) { el.classList.toggle('selected'); }
+
+  /* ─── SUMMARY SUGGESTIONS ─── */
+  function addChipToEditor(el) {
+    const editor = document.getElementById('summaryEditor');
+    const text = el.textContent.replace('+ ','');
+    editor.innerHTML += `<li>${text}</li>`;
+    el.style.opacity = '.4'; el.style.pointerEvents = 'none';
+  }
+
+  function regenerateSummary() {
+    const loading = document.getElementById('summaryLoading');
+    const ready = document.getElementById('summaryReady');
+    loading.style.display = 'flex';
+    ready.style.opacity = '.4';
+    setTimeout(() => { loading.style.display = 'none'; ready.style.opacity = '1'; }, 2000);
+  }
+
+  /* ─── PARTS GENERATION ─── */
+  const modules = [
+    { title: 'Module 1 — Fondements de l\'IA', sub: '3 séances • ~5h' },
+    { title: 'Module 2 — Machine Learning', sub: '3 séances • ~5h' },
+    { title: 'Module 3 — Réseaux de neurones', sub: '3 séances • ~5h' },
+    { title: 'Module 4 — Deep Learning', sub: '3 séances • ~5h' },
+    { title: 'Module 5 — IA Générative', sub: '3 séances • ~5h' },
+    { title: 'Module 6 — Projet & Évaluation', sub: '3 séances • ~5h' },
+  ];
+  let activeModule = 0;
+  let doneModules = [];
+  let initialized = false;
+
+  const moduleContents = [
+    `<h2 style="font-family:"Times New Roman", Times, serif;margin-bottom:12px">Module 1 — Fondements de l'IA</h2>
+<h3 style="color:var(--accent);font-size:14px;margin-bottom:10px">1.1 Histoire et définitions</h3>
+<p>L'intelligence artificielle (IA) est un domaine de l'informatique qui vise à reproduire certaines capacités cognitives humaines au sein de systèmes informatiques. Formalisée en 1956 lors de la conférence de Dartmouth par John McCarthy, elle a depuis évolué à travers plusieurs paradigmes.</p>
+<p>Les premières approches étaient <strong>symboliques</strong> : on cherchait à représenter la connaissance explicitement sous forme de règles logiques. Aujourd'hui, l'approche <strong>connexionniste</strong> — notamment les réseaux de neurones — domine grâce à la disponibilité des données et des capacités de calcul.</p>
+<div style="margin:16px 0;padding:14px 16px;background:rgba(91,140,255,0.08);border-left:3px solid var(--accent);border-radius:0 8px 8px 0">
+<strong style="font-size:13px">💡 Définition</strong>
+<p style="margin-top:6px;font-size:13px;color:var(--text2)">L'IA est la simulation de processus de l'intelligence humaine par des systèmes informatiques, incluant l'apprentissage, le raisonnement et l'autocorrection.</p>
+</div>
+<h3 style="color:var(--accent);font-size:14px;margin:16px 0 10px">1.2 Applications contemporaines</h3>
+<ul style="padding-left:20px;line-height:1.8">
+<li>Vision par ordinateur : reconnaissance faciale, diagnostic médical par imagerie</li>
+<li>Traitement du langage naturel : traduction, résumé automatique, chatbots</li>
+<li>Systèmes de recommandation : Netflix, Spotify, e-commerce</li>
+<li>Conduite autonome et robotique industrielle</li>
+</ul>`,
+    `<h2 style="font-family:"Times New Roman", Times, serif;margin-bottom:12px">Module 2 — Machine Learning</h2>
+<h3 style="color:var(--accent);font-size:14px;margin-bottom:10px">2.1 Paradigmes d'apprentissage</h3>
+<p>L'apprentissage automatique (ML) repose sur l'idée que les machines peuvent apprendre à partir de données sans être explicitement programmées. On distingue trois grands paradigmes :</p>
+<ul style="padding-left:20px;line-height:1.8;margin-bottom:14px">
+<li><strong>Supervisé</strong> : le modèle apprend à partir de données étiquetées (ex : classification, régression)</li>
+<li><strong>Non supervisé</strong> : le modèle découvre des structures cachées (ex : clustering, réduction de dimensions)</li>
+<li><strong>Par renforcement</strong> : un agent apprend par essai-erreur en maximisant une récompense</li>
+</ul>
+<div style="margin:16px 0;padding:14px 16px;background:rgba(52,211,153,0.08);border-left:3px solid var(--ok);border-radius:0 8px 8px 0">
+<strong style="font-size:13px">✅ Exercice pratique</strong>
+<p style="margin-top:6px;font-size:13px;color:var(--text2)">Implementez un classifieur KNN sur le dataset Iris avec scikit-learn et mesurez son accuracy en validation croisée.</p>
+</div>`,
+  ];
+
+  function initPartsIfNeeded() {
+    if (initialized) return;
+    initialized = true;
+    const list = document.getElementById('partsList');
+    list.innerHTML = '';
+    modules.forEach((m, i) => {
+      const el = document.createElement('div');
+      el.className = 'part-item' + (i === 0 ? ' active' : '');
+      el.id = 'part-' + i;
+      el.onclick = () => selectPart(i);
+      el.innerHTML = `<div class="part-label"><span>${m.title}</span><div class="status-dot"></div></div><div class="part-sub">${m.sub}</div>`;
+      list.appendChild(el);
+    });
+    selectPart(0);
+  }
+
+  function selectPart(i) {
+    activeModule = i;
+    document.querySelectorAll('.part-item').forEach(el => el.classList.remove('active'));
+    const partEl = document.getElementById('part-' + i);
+    if (partEl) partEl.classList.add('active');
+    document.getElementById('genViewTitle').textContent = modules[i].title;
+    const body = document.getElementById('genViewBody');
+    if (doneModules.includes(i)) {
+      body.innerHTML = moduleContents[i] || `<p>Contenu généré pour le ${modules[i].title}.</p>`;
+      body.contentEditable = 'true';
+    } else {
+      body.contentEditable = 'false';
+      body.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text3)">
+        <div style="font-size:40px;margin-bottom:12px">📋</div>
+        <p>Cliquez sur <strong>⚡ Générer</strong> pour créer le contenu de ce module.</p></div>`;
+    }
+    document.getElementById('validateBtn').disabled = !doneModules.includes(i);
+    document.getElementById('validateBtn').style.opacity = doneModules.includes(i) ? '1' : '.5';
+  }
+
+  let generating = false;
+  function simulateGeneration() {
+    if (generating) return;
+    generating = true;
+    const body = document.getElementById('genViewBody');
+    const partEl = document.getElementById('part-' + activeModule);
+    partEl.className = 'part-item generating active';
+    body.contentEditable = 'false';
+
+    const content = moduleContents[activeModule] || `<h2 style="font-family:"Times New Roman", Times, serif;margin-bottom:12px">${modules[activeModule].title}</h2><p>Contenu généré par l'IA pour ce module...</p>`;
+    body.innerHTML = `<div class="ai-loading"><div class="spinner"></div><span>Génération en cours avec GLM Flash 9B…</span></div>`;
+
+    setTimeout(() => {
+      body.innerHTML = '';
+      let chars = 0;
+      const words = content.length;
+      const interval = setInterval(() => {
+        chars += 40;
+        if (chars >= words) {
+          clearInterval(interval);
+          body.innerHTML = content;
+          body.contentEditable = 'true';
+          partEl.className = 'part-item done';
+          generating = false;
+          if (!doneModules.includes(activeModule)) doneModules.push(activeModule);
+          document.getElementById('validateBtn').disabled = false;
+          document.getElementById('validateBtn').style.opacity = '1';
+          updateStats();
+        } else {
+          body.innerHTML = content.slice(0, chars) + '<span class="cursor"></span>';
+        }
+      }, 30);
+    }, 1800);
+  }
+
+  function validateModule() {
+    const next = activeModule + 1;
+    if (next < modules.length) selectPart(next);
+    updateStats();
+  }
+
+  function updateStats() {
+    const done = doneModules.length;
+    const pct = Math.round(done / modules.length * 100);
+    document.getElementById('statDone').textContent = done;
+    document.getElementById('statPct').textContent = pct + '%';
+    document.getElementById('statWords').textContent = (done * 420).toLocaleString();
+    document.getElementById('genProgress').style.width = pct + '%';
+  }
+
+  /* ─── PDF TABS ─── */
+  function switchTab(btn, tab) {
+    document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tabStyle').style.display = tab === 'style' ? 'block' : 'none';
+    document.getElementById('tabAnnotations').style.display = tab === 'annotations' ? 'block' : 'none';
+    document.getElementById('tabMedia').style.display = tab === 'media' ? 'block' : 'none';
+  }
+
+  function selectSwatch(el) {
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('selected'));
+    el.classList.add('selected');
+    document.querySelectorAll('.pdf-accent-bar').forEach(b => b.style.background = el.style.background);
+  }
+  function select(btn , tab){
+    document.querySelector
+  }
+  /* ─── SUCCESS ─── */
+  function showSuccess() {
+    const m = document.getElementById('successModal');
+    m.style.display = 'grid';
+  }
+</script>
+</body>
+</html>
